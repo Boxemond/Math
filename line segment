@@ -1,0 +1,140 @@
+   /// <summary>
+    /// 判定某点是否在线段上
+    /// </summary>
+    /// <param name="lineStart"></param>
+    /// <param name="lineEnd"></param>
+    /// <param name="midPoint"></param>
+    /// <returns></returns>
+    public static bool IsPointOnLine(Vector3 lineStart,Vector3 lineEnd,Vector3 midPoint)
+    {
+        //if (midPoint.x == lineStart.x || midPoint.x == lineEnd.x)
+        //{
+
+        //}
+        //if (midPoint.x >= Mathf.Min(lineStart.x, lineEnd.x) && midPoint.x <= Mathf.Max(lineStart.x, lineEnd.x))
+        //{
+        //    if ((midPoint.z - lineStart.z) / (midPoint.x - lineStart.x) == ((midPoint.z - lineEnd.z) / (midPoint.x - lineEnd.x)))
+        //    {
+        //        return true;
+        //    }
+        //}
+        float StartToEnd =Mathf.Sqrt((lineEnd.x - lineStart.x) * (lineEnd.x - lineStart.x) + (lineEnd.z - lineStart.z)*(lineEnd.z - lineStart.z));
+        float StartToMid = Mathf.Sqrt((midPoint.x - lineStart.x) * (midPoint.x - lineStart.x) + (midPoint.z - lineStart.z) * (midPoint.z - lineStart.z));
+        float MidToEnd = Mathf.Sqrt((lineEnd.x - midPoint.x) * (lineEnd.x - midPoint.x) + (lineEnd.z - midPoint.z) * (lineEnd.z - midPoint.z));
+        if (StartToEnd == StartToMid + MidToEnd)
+            return true;
+        return false;
+    }
+
+
+    /// <summary>
+    /// 根据两条线段端点判断是否相交
+    /// </summary>
+    /// <param name="pointAStart"></param>
+    /// <param name="pointAEnd"></param>
+    /// <param name="pointBStart"></param>
+    /// <param name="pointBEnd"></param>
+    /// <returns></returns>
+    public static bool IsInterSect(Vector3 lineAStart,Vector3 lineAEnd,Vector3 lineBStart,Vector3 lineBEnd)
+    {
+        #region 特例太多
+        //求斜率 暴力点
+        float k1;
+        float k2;
+        float b1;
+        float b2;
+        //特殊情况 斜率正无穷
+        if (lineAEnd.x == lineAStart.x|| lineBEnd.x == lineBStart.x)
+        {
+            if (lineAEnd.x == lineAStart.x&&lineBEnd.x == lineBStart.x)//巧了，平行
+            {
+                if (lineAStart.x == lineBStart.x)//更巧了，直线重合
+                {
+                    //判断线段是否重合
+                    if ((Mathf.Max(lineAStart.z, lineAEnd.z) >= Mathf.Min(lineBStart.z, lineBEnd.z)) && (Mathf.Min(lineAStart.z, lineAEnd.z) <= Mathf.Max(lineBStart.z, lineBEnd.z)))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (lineAEnd.x == lineAStart.x)
+                {
+                    k2 = (lineBEnd.z - lineBStart.z) / (lineBEnd.x - lineBStart.x);
+                    b2 = lineBStart.z - k2 * lineBStart.x;
+                    float z2 = k2 * lineAEnd.x + b2;
+                    if (z2 < Mathf.Max(lineBStart.z, lineBEnd.z) && z2 > Mathf.Min(lineBStart.z, lineBEnd.z) && z2 < Mathf.Max(lineAStart.z, lineAEnd.z) && z2 > Mathf.Min(lineAStart.z, lineAEnd.z))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }else if (lineBEnd.x == lineBStart.x)
+                {
+
+                    k1 = (lineAEnd.z - lineAStart.z) / (lineAEnd.x - lineAStart.x);
+                    b1 = lineAStart.z - k1 * lineAStart.x;
+                    float z1= k1 * lineBEnd.x + b1;
+                    if (z1 < Mathf.Max(lineBStart.z, lineBEnd.z) && z1 > Mathf.Min(lineBStart.z, lineBEnd.z) && z1 < Mathf.Max(lineAStart.z, lineAEnd.z) && z1 > Mathf.Min(lineAStart.z, lineAEnd.z))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        //斜率存在情况
+        k1 = (lineAEnd.z - lineAStart.z) / (lineAEnd.x - lineAStart.x);
+        k2 = (lineBEnd.z - lineBStart.z) / (lineBEnd.x - lineBStart.x);
+        b1 = lineAStart.z - k1 * lineAStart.x;
+        b2 = lineBStart.z - k2 * lineBStart.x;
+        if (k1 == k2)//平行
+        {
+            
+            if (b1 != b2)
+            {
+                return false;//平行不重合
+            }
+            else
+            {
+                if (Mathf.Max(lineAStart.x, lineAEnd.x) >= Mathf.Min(lineBStart.x, lineBEnd.x) && Mathf.Min(lineAStart.x, lineAEnd.x) <= Mathf.Max(lineBStart.x, lineBEnd.x))
+                {
+                    return true;//重合
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        else//有交点
+        {
+            float interSectX = (b2 - b1) / (k1 - k2);
+            if (interSectX <= Mathf.Max(lineAStart.x, lineAEnd.x) && interSectX >= Mathf.Min(lineAStart.x, lineAEnd.x)&&
+                interSectX<=Mathf.Max(lineBStart.x,lineBEnd.x)&&interSectX>=Mathf.Min(lineBStart.x,lineBEnd.x))//交点在线段上
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        
+    }
